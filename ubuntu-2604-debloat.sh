@@ -783,11 +783,12 @@ main() {
     check_gnome_version
     check_kernel_version
 
+    setup_rollback
+
     info "Starting $SCRIPT_NAME v$VERSION"
     info "Target: Ubuntu 26.04 LTS, GNOME 50, Kernel 7.x"
     [[ "$DRY_RUN" == true ]] && warn "DRY-RUN MODE - No changes will be made"
 
-    setup_rollback
     apt_update
 
     # Execute phases
