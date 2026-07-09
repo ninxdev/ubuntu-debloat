@@ -2,7 +2,7 @@
 #
 # Pure vanilla GNOME 50 on Ubuntu 26.04 LTS (Server install)
 # Minimal, no Ubuntu session / Yaru theme / Ubuntu extensions / Snap.
-# Run as:  sudo bash pure-gnome-26.04.sh
+# Run as:  sudo bash debloat.sh
 #
 set -euo pipefail
 
