@@ -24,13 +24,18 @@ apt-get update
 echo "==> Installing gnome-core (vanilla GNOME, no recommends)"
 apt-get install -y --no-install-recommends gnome-core
 
-# Protect the real GNOME core so autoremove can never delete it later
+# Protect the real GNOME core so autoremove can never delete it later.
+# NOTE: tecla and ubuntu-wallpapers are NOT listed here because they are
+# hard dependencies of gnome-shell/gnome-control-center (apt tracks them
+# automatically). xdg-user-dirs-gtk is explicitly listed because it creates
+# the standard home folders (Desktop, Documents, Downloads, etc.) on first
+# GNOME login and must survive autoremove.
 apt-mark manual \
   gnome-shell gdm3 gnome-control-center gnome-session nautilus \
   gnome-settings-daemon gnome-keyring gnome-menus gnome-backgrounds \
   gsettings-desktop-schemas adwaita-icon-theme gnome-snapshot ghostty \
   network-manager pipewire-audio xdg-desktop-portal-gnome \
-  libpam-gnome-keyring gnome-online-accounts
+  libpam-gnome-keyring gnome-online-accounts xdg-user-dirs-gtk
 
 # ---------------------------------------------------------------------------
 # 2. Networking: NetworkManager is what upstream GNOME expects.
@@ -74,7 +79,12 @@ update-alternatives --set x-terminal-emulator /usr/bin/ghostty
 
 # ---------------------------------------------------------------------------
 # 4. Remove the optional GNOME apps (keep shell/session/gdm/control-center/
-#    nautilus/snapshot/camera). Also drop the GNOME Software store.
+#    nautilus/snapshot/camera/tecla/wallpapers).
+#
+#    NOTE: tecla and ubuntu-wallpapers CANNOT be removed because they are
+#    hard dependencies of gnome-shell and gnome-control-center (verified
+#    against Ubuntu 26.04 resolute repo Packages.gz). Removing them would
+#    force apt to also remove gnome-shell, breaking the desktop.
 # ---------------------------------------------------------------------------
 echo "==> Removing optional GNOME apps (bloat)"
 apt-get remove -y --purge \
@@ -82,15 +92,19 @@ apt-get remove -y --purge \
   gnome-disk-utility gnome-font-viewer gnome-logs gnome-maps gnome-weather \
   gnome-sushi gnome-system-monitor gnome-text-editor baobab loupe papers \
   showtime simple-scan gnome-connections gnome-bluetooth-sendto gnome-user-docs \
-  yelp ubuntu-wallpapers ubuntu-wallpapers-resolute tecla orca gnome-software
+  yelp ubuntu-wallpapers-resolute orca gnome-software
 
 # ---------------------------------------------------------------------------
 # 5. Pin everything we don't want, so apt upgrade can NEVER reinstall it.
+#
+#    NOTE: tecla and ubuntu-wallpapers are NOT pinned because they are
+#    hard dependencies of gnome-shell/gnome-control-center (see section 4).
+#    Pinning them at -1 would break apt upgrades.
 # ---------------------------------------------------------------------------
 echo "==> Writing apt pins (Priority -1 = never install)"
 cat > /etc/apt/preferences.d/block-gnome-bloat <<'EOF'
 # Pure-GNOME pins: block Ubuntu skin, Snap, and removed bloat apps/terminals.
-Package: gnome-calculator gnome-calendar gnome-characters gnome-clocks gnome-contacts gnome-disk-utility gnome-font-viewer gnome-logs gnome-maps gnome-weather gnome-sushi gnome-system-monitor gnome-text-editor baobab loupe papers showtime simple-scan gnome-connections gnome-bluetooth-sendto gnome-user-docs yelp ubuntu-wallpapers ubuntu-wallpapers-resolute tecla orca gnome-software snapd ubuntu-session gnome-shell-ubuntu-extensions yaru-theme-gnome-shell yaru-theme-gtk yaru-theme-icon yaru-theme-sound gsettings-ubuntu-schemas alacritty xterm gnome-terminal vim vim-common vim-runtime vim-tiny
+Package: gnome-calculator gnome-calendar gnome-characters gnome-clocks gnome-contacts gnome-disk-utility gnome-font-viewer gnome-logs gnome-maps gnome-weather gnome-sushi gnome-system-monitor gnome-text-editor baobab loupe papers showtime simple-scan gnome-connections gnome-bluetooth-sendto gnome-user-docs yelp ubuntu-wallpapers-resolute orca gnome-software snapd ubuntu-session gnome-shell-ubuntu-extensions yaru-theme-gnome-shell yaru-theme-gtk yaru-theme-icon yaru-theme-sound gsettings-ubuntu-schemas alacritty xterm gnome-terminal vim vim-common vim-runtime vim-tiny
 Pin: release *
 Pin-Priority: -1
 EOF
