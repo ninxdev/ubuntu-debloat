@@ -37,11 +37,11 @@ This script removes all of that and gives you **pure upstream GNOME 50** — the
 ```bash
 # 1. Boot your fresh Ubuntu 26.04 Server install
 # 2. Get the script
-wget https://raw.githubusercontent.com/<your-user>/<your-repo>/main/debloat.sh
-chmod +x debloat.sh
+sudo git clone https://github.com/ninxdev/ubuntu-debloat.git
 
 # 3. Run it
-sudo ./debloat.sh
+cd ubuntu-debloat
+sudo bash debloat.sh
 
 # 4. Reboot
 sudo reboot
