@@ -252,7 +252,7 @@ sudo apt autoremove --purge
 This is a separate decision and not part of this script.
 
 **Q: The script installed Google Chrome. I don't want it.**
-A: Comment out section 6 of the script (the `if command -v wget` block).
+A: Comment out section 6 of the script (the Chrome `wget` + `apt-get install` block).
 
 **Q: How much disk space does this save vs. Ubuntu Desktop?**
 A: Roughly 1.5–2 GB removed (Snap runtime + Ubuntu session + 23 GNOME apps + wallpapers-except-resolute + Ptyxis). The script also frees ~512 MB of kernel-reserved crash-dump memory.
