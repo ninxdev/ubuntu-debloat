@@ -77,8 +77,8 @@ gnome-calculator   gnome-calendar       gnome-characters     gnome-clocks
 gnome-contacts     gnome-disk-utility   gnome-font-viewer    gnome-logs
 gnome-maps         gnome-weather        gnome-sushi          gnome-system-monitor
 gnome-text-editor  baobab               loupe                papers
-showtime           simple-scan          gnome-connections    gnome-bluetooth-sendto
-gnome-user-docs    yelp                 orca                 gnome-software
+showtime           simple-scan          gnome-connections    gnome-user-docs
+yelp               orca                 gnome-software
 ```
 
 **Other bloat:**
@@ -155,7 +155,7 @@ This script was verified by:
    - `gdm3.service` exists at the end
    - All GNOME core packages survive `autoremove`
    - Kernel metapackages are not purged
-   - All 24 optional GNOME apps are removed
+   - All 23 optional GNOME apps are removed
    - Recovery `apt install gdm3` would succeed even after the pin is in place
 5. **Real-world testing in VMware** on Ubuntu 26.04 LTS Server amd64.
 
@@ -255,7 +255,7 @@ This is a separate decision and not part of this script.
 A: Comment out section 6 of the script (the `if command -v wget` block).
 
 **Q: How much disk space does this save vs. Ubuntu Desktop?**
-A: Roughly 1.5–2 GB removed (Snap runtime + Ubuntu session + 24 GNOME apps + wallpapers-except-resolute + Ptyxis). The script also frees ~512 MB of kernel-reserved crash-dump memory.
+A: Roughly 1.5–2 GB removed (Snap runtime + Ubuntu session + 23 GNOME apps + wallpapers-except-resolute + Ptyxis). The script also frees ~512 MB of kernel-reserved crash-dump memory.
 
 **Q: Is this safe to run on a production server?**
 A: **No.** This converts a server into a desktop. If you have a production server, don't run this. If you want a desktop, install Ubuntu Desktop or use this script on a fresh Server install.
@@ -299,7 +299,7 @@ apt-cache rdepends --installed <package> | grep -E 'gnome-shell|gdm3|gnome-sessi
 
 ## License
 
-MIT — do whatever you want, just don't blame me if it breaks.
+GNU Affero General Public License v3.0 (AGPL-3.0). See the [LICENSE](LICENSE) file for the full text.
 
 ---
 
