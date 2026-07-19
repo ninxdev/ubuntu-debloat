@@ -164,15 +164,10 @@ echo "/usr/sbin/gdm3" > /etc/X11/default-display-manager
 echo "==> Installing htop, wget"
 apt-get install -y htop wget
 
-if command -v wget >/dev/null; then
-  echo "==> Adding Google Chrome repo (comment out this block to skip)"
-  wget -q -O - https://dl.google.com/linux/linux_signing_key.pub \
-    | gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg 2>/dev/null
-  echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" \
-    > /etc/apt/sources.list.d/google-chrome.list
-  apt-get update
-  apt-get install -y google-chrome-stable || echo "Chrome install failed (continuing)"
-fi
+echo "==> Installing Google Chrome (direct .deb)"
+wget -q -O /tmp/google-chrome-stable.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+apt-get install -y /tmp/google-chrome-stable.deb || echo "Chrome install failed (continuing)"
+rm -f /tmp/google-chrome-stable.deb
 
 # ---------------------------------------------------------------------------
 # 7. Free the ~512 MB the kernel reserves for crash dumps (kdump).
