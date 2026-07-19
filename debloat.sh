@@ -140,7 +140,7 @@ echo "==> Marking critical packages as manually installed (protects autoremove)"
 apt-mark manual \
   gnome-shell gdm3 gnome-control-center gnome-session nautilus \
   gnome-settings-daemon gnome-keyring gnome-menus gnome-backgrounds \
-  gsettings-desktop-schemas adwaita-icon-theme gnome-snapshot ghostty \
+  gsettings-desktop-schemas adwaita-icon-theme gnome-snapshot gnome-bluetooth-sendto ghostty \
   network-manager pipewire-audio xdg-desktop-portal-gnome \
   libpam-gnome-keyring gnome-online-accounts xdg-user-dirs-gtk \
   gnome-session-common gnome-session-bin gnome-shell-common mutter-common \
@@ -202,7 +202,7 @@ apt-get remove -y gnome-core 2>/dev/null || true
 #       gnome-contacts, gnome-disk-utility, gnome-font-viewer, gnome-logs,
 #       gnome-maps, gnome-weather, gnome-sushi, gnome-system-monitor,
 #       gnome-text-editor, baobab, loupe, papers, showtime, simple-scan,
-#       gnome-connections, gnome-bluetooth-sendto, gnome-user-docs, yelp,
+#       gnome-connections, gnome-user-docs, yelp,
 #       orca, gnome-software
 #
 #    The reverse-depends analysis (from Ubuntu 26.04 resolute Packages.gz)
@@ -220,7 +220,7 @@ apt-get remove -y --purge \
   gnome-calculator gnome-calendar gnome-characters gnome-clocks gnome-contacts \
   gnome-disk-utility gnome-font-viewer gnome-logs gnome-maps gnome-weather \
   gnome-sushi gnome-system-monitor gnome-text-editor baobab loupe papers \
-  showtime simple-scan gnome-connections gnome-bluetooth-sendto gnome-user-docs \
+  showtime simple-scan gnome-connections gnome-user-docs \
   yelp orca gnome-software
 
 # ---------------------------------------------------------------------------
@@ -262,7 +262,7 @@ cat > /etc/apt/preferences.d/block-gnome-bloat <<'EOF'
 #   ubuntu-wallpapers           (hard dep of gnome-shell)
 #   tecla                       (hard dep of gnome-shell & gnome-control-center)
 #   vim, vim-common, vim-runtime  (hard dep of ubuntu-server)
-Package: gnome-calculator gnome-calendar gnome-characters gnome-clocks gnome-contacts gnome-disk-utility gnome-font-viewer gnome-logs gnome-maps gnome-weather gnome-sushi gnome-system-monitor gnome-text-editor baobab loupe papers showtime simple-scan gnome-connections gnome-bluetooth-sendto gnome-user-docs yelp orca gnome-software snapd ubuntu-session gnome-shell-ubuntu-extensions yaru-theme-gnome-shell yaru-theme-gtk yaru-theme-icon yaru-theme-sound gsettings-ubuntu-schemas alacritty xterm gnome-terminal vim-tiny
+Package: gnome-calculator gnome-calendar gnome-characters gnome-clocks gnome-contacts gnome-disk-utility gnome-font-viewer gnome-logs gnome-maps gnome-weather gnome-sushi gnome-system-monitor gnome-text-editor baobab loupe papers showtime simple-scan gnome-connections gnome-user-docs yelp orca gnome-software snapd ubuntu-session gnome-shell-ubuntu-extensions yaru-theme-gnome-shell yaru-theme-gtk yaru-theme-icon yaru-theme-sound gsettings-ubuntu-schemas alacritty xterm gnome-terminal vim-tiny
 Pin: release *
 Pin-Priority: -1
 EOF
