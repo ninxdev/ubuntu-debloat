@@ -290,6 +290,32 @@ echo "Ghostty is the only terminal. NetworkManager manages networking."
 echo "Standard home folders (Desktop/Documents/Downloads/Music/Pictures/Videos)"
 echo "will be created on first GNOME login by xdg-user-dirs-gtk."
 
+# ---------------------------------------------------------------------------
+# 14. OPTIONAL — Development toolchain (Python, C/C++, Rust, Java, Node.js,
+#     DB clients, web tooling, GNOME extension manager).
+#
+#     Placed LAST, after the GDM sanity check and the DONE banner above —
+#     deliberately NOT folded into section 6 (extras). This is a large,
+#     independent package list, and `set -euo pipefail` means a single
+#     bad/unavailable package name here would halt the script wherever it
+#     runs. Running it after the desktop conversion is already installed
+#     and sanity-checked means a failure here can never take down
+#     GNOME/GDM — worst case, only this block needs a rerun.
+# ---------------------------------------------------------------------------
+echo "==> Installing development toolchain"
+apt-get install -y \
+  python3 python3-pip python3-venv python3-dev python3-full \
+  libssl-dev libffi-dev zlib1g-dev libbz2-dev liblzma-dev libreadline-dev libsqlite3-dev libncurses-dev \
+  build-essential gcc g++ clang clangd clang-format clang-tidy make cmake ninja-build gdb pkg-config valgrind llvm \
+  rustc cargo rustfmt rust-clippy \
+  default-jdk maven \
+  nodejs \
+  sqlite3 postgresql-client mariadb-client pgcli mycli \
+  tidy html-xml-utils sassc \
+  ca-certificates gnupg \
+  gnome-shell-extension-manager
+echo "==> Development toolchain installed"
+
 # ============================================================================
 # EVIDENCE & REFERENCES
 # ----------------------------------------------------------------------------
