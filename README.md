@@ -66,6 +66,23 @@ After reboot you'll see the GDM login screen. Log in — only the vanilla **"GNO
 | User folders | `xdg-user-dirs-gtk` | Creates `Desktop/`, `Documents/`, `Downloads/`, `Music/`, `Pictures/`, `Videos/` on first login |
 | Extras | `htop`, `wget`, Google Chrome | Useful utilities + a real browser |
 
+### Development toolchain (installed last, optional)
+
+Independent of the desktop conversion above — installed in its own step after the GDM sanity check, so a problem here can't affect the GNOME/GDM install (see ["How the script is ordered"](#how-the-script-is-ordered-and-why)).
+
+| Category | Packages | Why |
+|---|---|---|
+| Python | `python3`, `python3-pip`, `python3-venv`, `python3-dev`, `python3-full` | Full Python 3 dev environment |
+| Python build deps | `libssl-dev`, `libffi-dev`, `zlib1g-dev`, `libbz2-dev`, `liblzma-dev`, `libreadline-dev`, `libsqlite3-dev`, `libncurses-dev` | Headers needed to build Python (e.g. via pyenv) and native extensions from source |
+| C / C++ | `build-essential`, `gcc`, `g++`, `clang`, `clangd`, `clang-format`, `clang-tidy`, `make`, `cmake`, `ninja-build`, `gdb`, `pkg-config`, `valgrind`, `llvm` | Full compiler, debugger, and build-system toolchain |
+| Rust | `rustc`, `cargo`, `rustfmt`, `rust-clippy` | Rust compiler and tooling |
+| Java | `default-jdk`, `maven` | JDK + build tool |
+| Node.js | `nodejs` | JS runtime |
+| Databases | `sqlite3`, `postgresql-client`, `mariadb-client`, `pgcli`, `mycli` | CLI clients for local dev databases |
+| Web tooling | `tidy`, `html-xml-utils`, `sassc` | HTML/CSS lint and build utilities |
+| System | `ca-certificates`, `gnupg` | Certificate store + key management |
+| GNOME | `gnome-shell-extension-manager` | GUI for installing/managing Shell extensions |
+
 ---
 
 ## What gets removed
@@ -110,19 +127,25 @@ The script marks these three as manually installed so `autoremove` will never to
 
 ## How the script is ordered (and why)
 
+`apt-get update` runs first, then:
+
 ```
-1. apt update
-2. Install gnome-core (no recommends) + NetworkManager + ghostty
-3. apt-mark manual EVERYTHING that must survive autoremove
-4. Enable gdm3 + set graphical.target          ← done EARLY, while gdm3 exists
-5. Install extras (htop, Chrome)
-6. Remove kdump-tools (free 512 MB)
-7. Remove gnome-core metapackage
-8. Remove optional GNOME apps                   ← app removal
-9. Remove ptyxis + snapd
-10. Write apt pins (Priority -1)                ← pinning
-11. apt autoremove --purge                      ← LAST
-12. Sanity check: gdm3.service exists?
+1. Install gnome-core (`--no-install-recommends`)
+2. Install NetworkManager
+3. Install ghostty, register as default terminal
+4. apt-mark manual EVERYTHING that must survive autoremove
+5. Enable gdm3 + set graphical.target          ← done EARLY, while gdm3 exists
+6. Install extras (htop, Chrome)
+7. Remove kdump-tools (free 512 MB)
+8. Remove gnome-core metapackage
+9. Remove optional GNOME apps                   ← app removal
+10. Remove ptyxis + snapd
+11. Write apt pins (Priority -1)                ← pinning
+12. apt autoremove --purge                      ← last step of the core conversion
+13. Sanity check: gdm3.service exists?
+14. Install development toolchain (Python, C/C++, Rust, Java, Node.js, DB
+    clients, web tooling, GNOME extension manager) ← independent of the
+    desktop conversion, see note below
 ```
 
 **Why GDM is enabled BEFORE the apt pin:** if anything goes wrong during pinning or autoremove, `gdm3.service` is already registered and the system can still boot to a graphical target. The previous version of this script enabled GDM at the very end — by which point `autoremove` had already purged `gdm3` (because the pin broke its dependency chain), producing:
@@ -132,6 +155,8 @@ Failed to enable unit: Unit gdm3.service does not exist
 ```
 
 **Why app removal and pinning are LAST:** so that if you Ctrl-C the script mid-way, you still have a working system with GNOME installed. The destructive operations happen at the end after everything important is already protected by `apt-mark manual`.
+
+**Why the development toolchain install is separate and LAST:** it's a large, independent package list (Python, C/C++, Rust, Java, Node.js, DB clients, web tooling, GNOME extension manager) with no relationship to the GNOME/GDM conversion. The script runs under `set -euo pipefail`, so one unavailable package name in a ~50-package list would halt the script wherever it sits. Running it after the desktop conversion is already installed and sanity-checked means a failure here can never take down GNOME/GDM — at worst, only this block needs a rerun.
 
 ---
 
