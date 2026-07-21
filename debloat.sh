@@ -62,9 +62,6 @@ export DEBIAN_FRONTEND=noninteractive
 echo "==> Updating package lists"
 apt-get update
 
-echo "==> Upgrading installed packages"
-apt-get upgrade -y
-
 # ---------------------------------------------------------------------------
 # 1. Install PURE GNOME core with --no-install-recommends.
 #    Skipping recommends is what avoids pulling in `ubuntu-session` (the
@@ -113,18 +110,6 @@ echo "==> Installing ghostty and registering as default terminal"
 apt-get install -y ghostty
 update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator /usr/bin/ghostty 50
 update-alternatives --set x-terminal-emulator /usr/bin/ghostty
-
-# Tell GNOME's Ctrl+Alt+T keybinding to launch ghostty.
-# Note: `org.gnome.desktop.default-applications.terminal` is marked
-# "DEPRECATED" in gsettings-desktop-schemas 50.0, but GNOME 50 on
-# Ubuntu 26.04 still reads it for the Ctrl+Alt+T keybinding. Verified
-# empirically: without this, Ctrl+Alt+T does nothing; with it,
-# Ctrl+Alt+T opens ghostty.
-# Run as the calling user (not root) so the setting lands in their dconf.
-if [ -n "${SUDO_USER:-}" ] && [ "${SUDO_USER}" != "root" ]; then
-  sudo -u "$SUDO_USER" gsettings set org.gnome.desktop.default-applications.terminal exec 'ghostty' 2>/dev/null || true
-  sudo -u "$SUDO_USER" gsettings set org.gnome.desktop.default-applications.terminal exec-arg '-e' 2>/dev/null || true
-fi
 
 # ---------------------------------------------------------------------------
 # 4. Protect EVERYTHING that must survive autoremove.
@@ -176,8 +161,8 @@ echo "/usr/sbin/gdm3" > /etc/X11/default-display-manager
 # ---------------------------------------------------------------------------
 # 6. Extras: htop + Google Chrome (comment out the Chrome block if unwanted).
 # ---------------------------------------------------------------------------
-echo "==> Installing htop, fonts-noto, gnome-boxes, micro"
-apt-get install -y htop fonts-noto gnome-boxes micro
+echo "==> Installing htop, wget"
+apt-get install -y htop wget
 
 echo "==> Installing Google Chrome (direct .deb)"
 wget -q -O /tmp/google-chrome-stable.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
