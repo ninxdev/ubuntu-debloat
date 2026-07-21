@@ -11,7 +11,7 @@ For people who want a "better Ubuntu" — install the Server ISO, run this scrip
 Ubuntu Desktop ships with a lot of stuff many people don't want:
 - The Ubuntu session / Yaru theme / Ubuntu extensions (skin over vanilla GNOME)
 - Snap and snapd
-- Two dozen GNOME utility apps (Calculator, Calendar, Maps, Weather, Contacts, Clocks, …)
+- 23 GNOME utility apps (Calculator, Calendar, Maps, Weather, Contacts, Clocks, …)
 - The Ptyxis terminal (Ubuntu's custom terminal)
 - Crash-dump kernel memory reservation (~512 MB)
 
@@ -66,8 +66,9 @@ After reboot you'll see the GDM login screen. Log in — only the vanilla **"GNO
 | User folders | `xdg-user-dirs-gtk` | Creates `Desktop/`, `Documents/`, `Downloads/`, `Music/`, `Pictures/`, `Videos/` on first login |
 | Fonts | `fonts-noto` | Comprehensive Unicode font coverage (many languages, emoji) |
 | Virtualization | `gnome-boxes` | GNOME's VM manager (for running other OSes in VMs) |
-| Editor | `micro` | Modern terminal text editor ( intuitive nano-style, Ctrl-based shortcuts) |
-| Extras | `htop`, Google Chrome | Useful utilities + a real browser |
+| Editor | `micro` | Modern terminal text editor (intuitive nano-style, Ctrl-based shortcuts) |
+| Extensions | `gnome-shell-extension-manager` | GUI for installing/managing GNOME Shell extensions |
+| Extras | `htop`, `wget`, Google Chrome | Useful utilities + a real browser |
 
 ### Development toolchain (installed last, optional)
 
@@ -84,7 +85,6 @@ Independent of the desktop conversion above — installed in its own step after 
 | Databases | `sqlite3`, `postgresql-client`, `mariadb-client`, `pgcli`, `mycli` | CLI clients for local dev databases |
 | Web tooling | `tidy`, `html-xml-utils`, `sassc` | HTML/CSS lint and build utilities |
 | System | `ca-certificates`, `gnupg` | Certificate store + key management |
-| GNOME | `gnome-shell-extension-manager` | GUI for installing/managing Shell extensions |
 
 ---
 
@@ -138,7 +138,7 @@ The script marks these three as manually installed so `autoremove` will never to
 3. Install ghostty, register as default terminal (incl. gsettings for Ctrl+Alt+T)
 4. apt-mark manual EVERYTHING that must survive autoremove
 5. Enable gdm3 + set graphical.target          ← done EARLY, while gdm3 exists
-6. Install extras (htop, Chrome, fonts-noto, gnome-boxes, micro)
+6. Install extras (htop, wget, Chrome, fonts-noto, gnome-boxes, micro, gnome-shell-extension-manager)
 7. Remove kdump-tools (free 512 MB)
 8. Remove gnome-core metapackage
 9. Remove optional GNOME apps                   ← app removal
@@ -147,8 +147,7 @@ The script marks these three as manually installed so `autoremove` will never to
 12. apt autoremove --purge                      ← last step of the core conversion
 13. Sanity check: gdm3.service exists?
 14. Install development toolchain (Python, C/C++, Rust, Java, Node.js, DB
-    clients, web tooling, GNOME extension manager) ← independent of the
-    desktop conversion, see note below
+    clients, web tooling) ← independent of the desktop conversion, see note below
 ```
 
 **Why GDM is enabled BEFORE the apt pin:** if anything goes wrong during pinning or autoremove, `gdm3.service` is already registered and the system can still boot to a graphical target. The previous version of this script enabled GDM at the very end — by which point `autoremove` had already purged `gdm3` (because the pin broke its dependency chain), producing:
@@ -159,7 +158,7 @@ Failed to enable unit: Unit gdm3.service does not exist
 
 **Why app removal and pinning are LAST:** so that if you Ctrl-C the script mid-way, you still have a working system with GNOME installed. The destructive operations happen at the end after everything important is already protected by `apt-mark manual`.
 
-**Why the development toolchain install is separate and LAST:** it's a large, independent package list (Python, C/C++, Rust, Java, Node.js, DB clients, web tooling, GNOME extension manager) with no relationship to the GNOME/GDM conversion. The script runs under `set -euo pipefail`, so one unavailable package name in a ~50-package list would halt the script wherever it sits. Running it after the desktop conversion is already installed and sanity-checked means a failure here can never take down GNOME/GDM — at worst, only this block needs a rerun.
+**Why the development toolchain install is separate and LAST:** it's a large, independent package list (Python, C/C++, Rust, Java, Node.js, DB clients, web tooling) with no relationship to the GNOME/GDM conversion. The script runs under `set -euo pipefail`, so one unavailable package name in a ~50-package list would halt the script wherever it sits. Running it after the desktop conversion is already installed and sanity-checked means a failure here can never take down GNOME/GDM — at worst, only this block needs a rerun.
 
 ---
 
@@ -186,6 +185,7 @@ This script was verified by:
    - All 23 optional GNOME apps are removed
    - Recovery `apt install gdm3` would succeed even after the pin is in place
 5. **Real-world testing in VMware** on Ubuntu 26.04 LTS Server amd64.
+6. **Tested on real hardware** — the author runs this script on their main laptop daily, after first validating each change in a VMware VM.
 
 ---
 
