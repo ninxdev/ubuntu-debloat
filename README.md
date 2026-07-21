@@ -64,6 +64,9 @@ After reboot you'll see the GDM login screen. Log in — only the vanilla **"GNO
 | Camera | `gnome-snapshot` | GNOME's modern camera app (replaces Cheese) |
 | Settings | `gnome-control-center`, `gnome-settings-daemon` | Standard GNOME settings UI |
 | User folders | `xdg-user-dirs-gtk` | Creates `Desktop/`, `Documents/`, `Downloads/`, `Music/`, `Pictures/`, `Videos/` on first login |
+| Fonts | `fonts-noto` | Comprehensive Unicode font coverage (many languages, emoji) |
+| Virtualization | `gnome-boxes` | GNOME's VM manager (for running other OSes in VMs) |
+| Editor | `micro` | Modern terminal text editor ( intuitive nano-style, Ctrl-based shortcuts) |
 | Extras | `htop`, `wget`, Google Chrome | Useful utilities + a real browser |
 
 ### Development toolchain (installed last, optional)
@@ -127,15 +130,15 @@ The script marks these three as manually installed so `autoremove` will never to
 
 ## How the script is ordered (and why)
 
-`apt-get update` runs first, then:
+`apt-get update` + `apt-get upgrade` run first, then:
 
 ```
 1. Install gnome-core (`--no-install-recommends`)
 2. Install NetworkManager
-3. Install ghostty, register as default terminal
+3. Install ghostty, register as default terminal (incl. gsettings for Ctrl+Alt+T)
 4. apt-mark manual EVERYTHING that must survive autoremove
 5. Enable gdm3 + set graphical.target          ← done EARLY, while gdm3 exists
-6. Install extras (htop, Chrome)
+6. Install extras (htop, Chrome, fonts-noto, gnome-boxes, micro)
 7. Remove kdump-tools (free 512 MB)
 8. Remove gnome-core metapackage
 9. Remove optional GNOME apps                   ← app removal
