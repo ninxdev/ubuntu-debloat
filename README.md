@@ -67,7 +67,7 @@ After reboot you'll see the GDM login screen. Log in — only the vanilla **"GNO
 | Fonts | `fonts-noto` | Comprehensive Unicode font coverage (many languages, emoji) |
 | Virtualization | `gnome-boxes` | GNOME's VM manager (for running other OSes in VMs) |
 | Editor | `micro` | Modern terminal text editor ( intuitive nano-style, Ctrl-based shortcuts) |
-| Extras | `htop`, `wget`, Google Chrome | Useful utilities + a real browser |
+| Extras | `htop`, Google Chrome | Useful utilities + a real browser |
 
 ### Development toolchain (installed last, optional)
 
