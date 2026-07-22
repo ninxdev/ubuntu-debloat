@@ -20,13 +20,15 @@
 #     "Failed to enable unit: Unit gdm3.service does not exist"
 #
 # This version does, in order:
+#   0. apt-get update + apt-get upgrade  (bring system to current)
 #   1. Install GNOME core + network + terminal
 #   2. apt-mark manual EVERYTHING that must survive (so autoremove is safe)
 #   3. Enable GDM + graphical.target  ← done EARLY, while gdm3 is fresh
-#   4. Install user extras (htop, Chrome)
+#   4. Install user extras (htop, wget, fonts-noto, gnome-boxes, micro, gnome-shell-extension-manager, Chrome)
 #   5. Remove kdump-tools (free 512 MB)
 #   6. ONLY THEN remove optional GNOME apps and write apt pins
 #   7. autoremove --purge as the very last step
+#   8. Install development toolchain (separate, optional, last)
 #
 # ============================================================================
 # THE BUG THAT BROKE THE PREVIOUS SCRIPT (verified, see evidence at bottom)
@@ -61,6 +63,9 @@ export DEBIAN_FRONTEND=noninteractive
 
 echo "==> Updating package lists"
 apt-get update
+
+echo "==> Upgrading installed packages"
+apt-get upgrade -y
 
 # ---------------------------------------------------------------------------
 # 1. Install PURE GNOME core with --no-install-recommends.
@@ -102,7 +107,7 @@ netplan apply
 
 # ---------------------------------------------------------------------------
 # 3. Terminal: ghostty only. We register ghostty as the system terminal
-#    NOW, but defer removal of ptyxis to the very end (section 11) so that
+#    NOW, but defer removal of ptyxis to the very end (section 10) so that
 #    if anything earlier in the script breaks, we still have a working
 #    terminal on the system.
 # ---------------------------------------------------------------------------
@@ -110,6 +115,18 @@ echo "==> Installing ghostty and registering as default terminal"
 apt-get install -y ghostty
 update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator /usr/bin/ghostty 50
 update-alternatives --set x-terminal-emulator /usr/bin/ghostty
+
+# Tell GNOME's Ctrl+Alt+T keybinding to launch ghostty.
+# Note: `org.gnome.desktop.default-applications.terminal` is marked
+# "DEPRECATED" in gsettings-desktop-schemas 50.0, but GNOME 50 on
+# Ubuntu 26.04 still reads it for the Ctrl+Alt+T keybinding. Verified
+# empirically: without this, Ctrl+Alt+T does nothing; with it,
+# Ctrl+Alt+T opens ghostty.
+# Run as the calling user (not root) so the setting lands in their dconf.
+if [ -n "${SUDO_USER:-}" ] && [ "${SUDO_USER}" != "root" ]; then
+  sudo -u "$SUDO_USER" gsettings set org.gnome.desktop.default-applications.terminal exec 'ghostty' 2>/dev/null || true
+  sudo -u "$SUDO_USER" gsettings set org.gnome.desktop.default-applications.terminal exec-arg '-e' 2>/dev/null || true
+fi
 
 # ---------------------------------------------------------------------------
 # 4. Protect EVERYTHING that must survive autoremove.
@@ -161,8 +178,8 @@ echo "/usr/sbin/gdm3" > /etc/X11/default-display-manager
 # ---------------------------------------------------------------------------
 # 6. Extras: htop + Google Chrome (comment out the Chrome block if unwanted).
 # ---------------------------------------------------------------------------
-echo "==> Installing htop, wget"
-apt-get install -y htop wget
+echo "==> Installing htop, wget, fonts-noto, gnome-boxes, micro, gnome-shell-extension-manager"
+apt-get install -y htop wget fonts-noto gnome-boxes micro gnome-shell-extension-manager
 
 echo "==> Installing Google Chrome (direct .deb)"
 wget -q -O /tmp/google-chrome-stable.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
@@ -292,7 +309,7 @@ echo "will be created on first GNOME login by xdg-user-dirs-gtk."
 
 # ---------------------------------------------------------------------------
 # 14. OPTIONAL — Development toolchain (Python, C/C++, Rust, Java, Node.js,
-#     DB clients, web tooling, GNOME extension manager).
+#     DB clients, web tooling).
 #
 #     Placed LAST, after the GDM sanity check and the DONE banner above —
 #     deliberately NOT folded into section 6 (extras). This is a large,
@@ -312,8 +329,7 @@ apt-get install -y \
   nodejs \
   sqlite3 postgresql-client mariadb-client pgcli mycli \
   tidy html-xml-utils sassc \
-  ca-certificates gnupg \
-  gnome-shell-extension-manager
+  ca-certificates gnupg
 echo "==> Development toolchain installed"
 
 # ============================================================================
